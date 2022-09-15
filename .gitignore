@@ -1,0 +1,6 @@
+dist
+.idea/
+static
+node_modules
+documentation
+.env

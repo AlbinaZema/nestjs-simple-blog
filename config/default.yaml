@@ -1,0 +1,19 @@
+server:
+  port: 3333
+
+jwt:
+  secret: 'you_will_never_know'
+  expiresIn:
+    accessToken: 1800
+    refreshToken: 86400
+
+uploads:
+  path: 'static/uploads'
+
+db:
+  url: ''
+  dbName: 'blog'
+
+redis:
+  host: ''
+  port: ''
