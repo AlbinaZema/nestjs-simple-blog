@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { Document, Types } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { resolve } from 'path';
@@ -8,11 +9,17 @@ import * as config from 'config';
 const logger = new Logger('ResourceSchema');
 
 @Schema()
+@ObjectType()
 export class Resource {
+  @Field(() => String)
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
+  @Field()
   filename: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Post' })
+  @Field(() => String)
   post: Types.ObjectId;
 }
 

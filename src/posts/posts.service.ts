@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ResourcesService } from '../resources/resources.service';
-import { PopulatedPostWithUser, Post, PostDocument } from './schemas/post.schema';
+import { Post, PostDocument } from './schemas/post.schema';
 import { UserDocument } from '../users/schemas/user.schema';
 import { GetPostsFilterDto } from './dto/getPostsFilter.dto';
 import { CreatePostDto } from './dto/createPost.dto';
@@ -11,7 +11,7 @@ const throwPostNotFoundError = (postId: string|Types.ObjectId): never => {
   throw new NotFoundException(`Post with ID "${postId}" not found`);
 };
 
-const userDefaultPopulationConfig = { path: 'user', select: 'username' };
+const userDefaultPopulationConfig = { path: 'user', select: '_id' };
 
 @Injectable()
 export class PostsService {
@@ -44,11 +44,8 @@ export class PostsService {
    * Get a single post by id
    * @param postId
    */
-  async getPost(postId: Types.ObjectId): Promise<PopulatedPostWithUser> {
-    const foundPost: PopulatedPostWithUser = await this.postModel
-      .findById(postId)
-      .populate(userDefaultPopulationConfig)
-      .exec() as PopulatedPostWithUser;
+  async getPost(postId: Types.ObjectId): Promise<PostDocument> {
+    const foundPost: PostDocument = await this.postModel.findById(postId);
 
     if (!foundPost) {
       throwPostNotFoundError(postId);
@@ -108,9 +105,7 @@ export class PostsService {
 
     return {
       total: await totalQuery.exec(),
-      posts: await postsQuery
-        .populate(userDefaultPopulationConfig)
-        .populate('resources').exec(),
+      posts: await postsQuery.populate('resources').exec(),
     };
   }
 
@@ -147,13 +142,16 @@ export class PostsService {
    * @param postId
    * @param user
    */
-  async deletePost(postId: Types.ObjectId, user: UserDocument): Promise<void> {
+  async deletePost(postId: Types.ObjectId, user: UserDocument): Promise<string> {
     const deletedPost = await this.postModel.findOneAndDelete(
       { _id: postId, user: user._id },
     );
 
     if (!deletedPost) {
       throwPostNotFoundError(postId);
+      return;
     }
+
+    return deletedPost._id;
   }
 }

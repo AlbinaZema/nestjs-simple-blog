@@ -1,12 +1,11 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
-export default class RequiredUserAuthGuard extends AuthGuard() {
-  handleRequest(error, user): any {
-    if (error || !user) {
-      throw error || new UnauthorizedException('Access token invalid');
-    }
-
-    return user;
+@Injectable()
+export default class RequiredUserAuthGuard extends AuthGuard('jwt') {
+  getRequest(context: ExecutionContext) {
+    const ctx = GqlExecutionContext.create(context);
+    return ctx.getContext().req;
   }
 }

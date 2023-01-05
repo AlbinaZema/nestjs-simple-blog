@@ -1,0 +1,109 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  _id: String!
+  username: String!
+  password: String!
+  salt: String!
+  createdAt: DateTime!
+  roles: [Role!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum Role {
+  User
+  Admin
+}
+
+type SignInResponseDto {
+  accessToken: String!
+  refreshToken: String!
+  username: String!
+  roles: [Role!]!
+  _id: String!
+}
+
+type RefreshResponseDto {
+  accessToken: String!
+}
+
+type GetUsersResponseDto {
+  users: [User!]!
+  total: Float!
+}
+
+type Post {
+  _id: String!
+  title: String!
+  body: String!
+  createdAt: DateTime!
+  user: String!
+}
+
+type Resource {
+  _id: String!
+  filename: String!
+  post: String!
+}
+
+type GetPostsResponseDtoDto {
+  posts: [Post!]!
+  total: Float!
+}
+
+type Query {
+  getUsers(usersFilterDto: GetUsersFilterDto!): GetUsersResponseDto!
+  getPosts(filterDto: GetPostsFilterDto!): GetPostsResponseDtoDto!
+  getPostById(id: ID!): Post!
+}
+
+input GetUsersFilterDto {
+  username: String
+  sorting: Float
+  pageNumber: Float
+  pageSize: Float
+}
+
+input GetPostsFilterDto {
+  text: String
+  sorting: Float
+  pageNumber: Float
+  pageSize: Float
+  user: String
+  personal: Boolean
+}
+
+type Mutation {
+  signUp(userCredentialsDto: UserCredentialsDto!): User!
+  signIn(userCredentialsDto: UserCredentialsDto!): SignInResponseDto!
+  signOut: String!
+  refreshToken: RefreshResponseDto!
+  deleteUser(id: ID!): String!
+  createPost(createPostDto: CreatePostDto!): Post!
+  updatePost(id: ID!, updatePostDto: UpdatePostDto!): Post!
+  deletePost(id: ID!): String!
+  uploadResource(postId: ID!): Resource!
+}
+
+input UserCredentialsDto {
+  username: String!
+  password: String!
+}
+
+input CreatePostDto {
+  title: String!
+  body: String!
+  resources: [String!]
+}
+
+input UpdatePostDto {
+  title: String
+  body: String
+  resources: [String!]
+}

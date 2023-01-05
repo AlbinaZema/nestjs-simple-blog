@@ -4,7 +4,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { resolve } from 'path';
 import { AuthModule } from '../auth/auth.module';
 import { ResourcesService } from './resources.service';
-import { ResourcesController } from './resources.controller';
+import { ResourcesResolver } from './resources.resolver';
 import ResourcesSchema, { Resource } from './schemas/resource.schema';
 import * as config from 'config';
 
@@ -14,8 +14,7 @@ import * as config from 'config';
     MulterModule.register({ dest: resolve(config.get('uploads.path')) }),
     AuthModule,
   ],
-  controllers: [ResourcesController],
-  providers: [ResourcesService],
+  providers: [ResourcesService, ResourcesResolver],
   exports: [ResourcesService],
 })
 export class ResourcesModule {}

@@ -33,8 +33,8 @@ export class AuthService {
    * Creates new user with received credentials
    * @param userCredentialsDto
    */
-  async signUp(userCredentialsDto: UserCredentialsDto): Promise<void> {
-    await this.usersService.createUser(userCredentialsDto);
+  async signUp(userCredentialsDto: UserCredentialsDto): Promise<UserDocument> {
+    return await this.usersService.createUser(userCredentialsDto);
   }
 
   /**
@@ -81,6 +81,7 @@ export class AuthService {
     this.logger.debug(`Reset Refresh Token for user with id: ${userId}`);
 
     await AuthService.redisInstance.del(userId);
+    return 'user logout';
   }
 
   /**
