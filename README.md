@@ -7,13 +7,10 @@ Simple blog backend application created with usage of the NestJS and Mongoose.
 
 ```bash
 $ npm install
-```
-
-## Running the app
-
-```bash
+$ brew services start redis
 $ npm run start
 ```
+#### Open url http://localhost:3333/graphql
 
 ## Support
 
