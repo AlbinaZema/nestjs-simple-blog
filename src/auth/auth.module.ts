@@ -7,7 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import * as config from 'config';
 
-const { secret, expiresIn } = config.get('jwt');
+const { secret, expiresIn } = config.default.jwt;
 
 @Module({
   imports: [

@@ -1,7 +1,7 @@
 import { UseGuards, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Query, Mutation, Args, Resolver, ID } from '@nestjs/graphql';
-import * as sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 import sanitizeHtmlConfig from './sanitizeHtmlConfig';
 import { PostDocument, Post } from './schemas/post.schema';
 import { UserDocument } from '../users/schemas/user.schema';

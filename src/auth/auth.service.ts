@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as Redis from 'ioredis';
+import Redis from 'ioredis';
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/schemas/user.schema';
 import { SignInResponseDto } from './dto/signInResponse.dto';
@@ -19,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {
     if (!AuthService.redisInstance) {
-      const { host, port } = config.get('redis');
+      const { host, port } = config.default.redis;
 
       AuthService.redisInstance = new Redis({
         keyPrefix: 'jwt-refresh_',
@@ -55,7 +55,7 @@ export class AuthService {
     const { _id, roles } = user;
     const payload: JwtPayload = { username, _id };
     const accessToken = this.jwtService.sign(payload);
-    const refreshTokenExpiration = process.env.REFRESH_TOKEN_EXPIRATION || config.get('jwt.expiresIn.refreshToken');
+    const refreshTokenExpiration = process.env.REFRESH_TOKEN_EXPIRATION || config.default.jwt.expiresIn.refreshToken;
     const refreshToken = await AuthService.redisInstance.get(_id) || this.jwtService.sign(payload, {
       expiresIn: refreshTokenExpiration,
     });

@@ -1,7 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ResourcesService } from '../resources/resources.service';
 import { Post, PostDocument } from './schemas/post.schema';
 import { UserDocument } from '../users/schemas/user.schema';
 import { GetPostsFilterDto } from './dto/getPostsFilter.dto';
@@ -17,7 +16,6 @@ const userDefaultPopulationConfig = { path: 'user', select: '_id' };
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
-    private readonly resourcesService: ResourcesService,
   ) {}
 
   /**
@@ -34,8 +32,6 @@ export class PostsService {
     const createdPost: PostDocument = await this.postModel.create(
       { ...createPostDto, user: user._id },
     );
-
-    await this.resourcesService.updateResourcesPost(resources, createdPost._id);
 
     return createdPost.populate(userDefaultPopulationConfig);
   }
@@ -131,8 +127,6 @@ export class PostsService {
     if (!updatedPost) {
       throwPostNotFoundError(postId);
     }
-
-    await this.resourcesService.updateResourcesPost(resources, postId);
 
     return updatedPost.populate(userDefaultPopulationConfig);
   }
