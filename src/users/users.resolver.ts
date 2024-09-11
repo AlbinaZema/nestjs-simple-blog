@@ -1,18 +1,14 @@
 import {
-  Controller,
-  Get,
-  Delete,
-  Query,
-  Param,
   UseGuards,
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
+import { Query, Mutation, Args, Resolver, ID } from '@nestjs/graphql';
 import { Types } from 'mongoose';
-import implicitQueryParams from 'nestjs-implicit-query-params';
 import { UsersService } from './users.service';
-import { UserDocument } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import { GetUsersFilterDto } from './dto/getUsersFilter.dto';
+import { GetUsersResponseDto } from './dto/getUsersResponse.dto';
 import { ObjectIdValidationPipe } from '../helpers/pipes/objectIdValidation.pipe';
 import RequiredUserAuthGuard from '../helpers/guards/RequiredUserAuth.guard';
 import RolesGuard from '../roles/roles.guard';
@@ -21,17 +17,17 @@ import { GetUser } from './getUser.decorator';
 import { Role } from '../enums/role.enum';
 
 @Roles(Role.Admin)
-@Controller('users')
 @UseGuards(RequiredUserAuthGuard, RolesGuard)
-export class UsersController {
-  private logger = new Logger('UsersController');
+@Resolver(() => User)
+export class UsersResolver {
+  private logger = new Logger('UsersResolver');
 
   constructor(private usersService: UsersService) { }
 
-  @Get()
+  @Query(() => GetUsersResponseDto)
   getUsers(
-    @Query(implicitQueryParams()) usersFilterDto: GetUsersFilterDto,
-  ): Promise<{ users: UserDocument[], total: number }> {
+    @Args('usersFilterDto') usersFilterDto: GetUsersFilterDto,
+  ): Promise<GetUsersResponseDto> {
     this.logger.verbose(
       `Retrieving users. Filters: ${JSON.stringify(usersFilterDto)}`,
     );
@@ -39,11 +35,11 @@ export class UsersController {
     return this.usersService.getUsers(usersFilterDto);
   }
 
-  @Delete('/:id')
+  @Mutation(() => String)
   deleteUser(
-    @Param('id', new ObjectIdValidationPipe()) id: Types.ObjectId,
+    @Args('id', { type: () => ID }, new ObjectIdValidationPipe()) id: Types.ObjectId,
     @GetUser() { _id }: UserDocument,
-  ): Promise<void> {
+  ) {
     if (id.equals(_id)) {
       throw new ForbiddenException('User cannot delete himself!');
     }

@@ -20,7 +20,7 @@ export class UsersService {
   ) {}
 
   /**
-   * Creates a new user with received credentials
+   * Create a new user with received credentials
    * @param username
    * @param password
    */
@@ -104,11 +104,12 @@ export class UsersService {
   }
 
   /**
-   * Deletes user by id
+   * Delete user by id
    * @param userId
    */
-  async deleteUser(userId: Types.ObjectId): Promise<void> {
+  async deleteUser(userId: Types.ObjectId): Promise<string> {
     const session = await this.userModel.startSession();
+    let deletedUser = '';
 
     // NOTE: There is no sense to use a transaction for such a case
     // (here it is used just for example)
@@ -118,8 +119,7 @@ export class UsersService {
        Here can be added operation which can fault
        Operations will be undone on error
       */
-
-      const deletedUser = await this.userModel.findByIdAndDelete(userId);
+      deletedUser = (await this.userModel.findByIdAndDelete(userId))._id;
 
       if (!deletedUser) {
         throw new NotFoundException(`User with ID "${userId}" not found`);
@@ -127,5 +127,6 @@ export class UsersService {
     });
 
     session.endSession();
+    return deletedUser;
   }
 }

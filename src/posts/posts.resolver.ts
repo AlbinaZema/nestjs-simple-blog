@@ -1,43 +1,33 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Delete,
-  Body,
-  Query,
-  Param,
-  UseGuards,
-  Logger,
-} from '@nestjs/common';
+import { UseGuards, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
-import * as sanitizeHtml from 'sanitize-html';
-import implicitQueryParams from 'nestjs-implicit-query-params';
+import { Query, Mutation, Args, Resolver, ID } from '@nestjs/graphql';
+import sanitizeHtml from 'sanitize-html';
 import sanitizeHtmlConfig from './sanitizeHtmlConfig';
-import { PopulatedPostWithUser, PostDocument } from './schemas/post.schema';
+import { PostDocument, Post } from './schemas/post.schema';
 import { UserDocument } from '../users/schemas/user.schema';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/createPost.dto';
 import { GetPostsFilterDto } from './dto/getPostsFilter.dto';
+import { UpdatePostDto } from './dto/updatePost.dto';
 import { GetUser } from '../users/getUser.decorator';
 import { Roles } from '../roles/roles.decorator';
 import { ObjectIdValidationPipe } from '../helpers/pipes/objectIdValidation.pipe';
 import RequiredUserAuthGuard from '../helpers/guards/RequiredUserAuth.guard';
-import OptionalUserAuthGuard from '../helpers/guards/OptionalUserAuth.guard';
 import RolesGuard from '../roles/roles.guard';
 import { Role } from '../enums/role.enum';
+import { GetPostsResponseDtoDto } from './dto/getPostsResponseDto.dto';
 
-@Controller('posts')
-export class PostsController {
-  private logger = new Logger('PostsController');
+@Resolver(() => Post)
+export class PostsResolver {
+  private logger = new Logger('PostsResolver');
 
   constructor(private postsService: PostsService) { }
 
-  @Post()
   @Roles(Role.User, Role.Admin)
   @UseGuards(RequiredUserAuthGuard, RolesGuard)
+  @Mutation(() => Post)
   createPost(
-    @Body() {
+    @Args('createPostDto') {
       title,
       body,
       resources,
@@ -55,14 +45,12 @@ export class PostsController {
     );
   }
 
-  @Get()
-  @UseGuards(OptionalUserAuthGuard)
+  @UseGuards(RequiredUserAuthGuard)
+  @Query(() => GetPostsResponseDtoDto)
   getPosts(
-    @Query(implicitQueryParams({
-      personal: fieldValue => fieldValue === 'true',
-    })) filterDto: GetPostsFilterDto,
+    @Args('filterDto') filterDto: GetPostsFilterDto,
     @GetUser() user: UserDocument,
-  ): Promise<{ posts: PostDocument[], total: number }> {
+  ): Promise<GetPostsResponseDtoDto> {
     this.logger.verbose(
       `Retrieving the posts. Filters: ${JSON.stringify(filterDto)}`,
     );
@@ -70,23 +58,23 @@ export class PostsController {
     return this.postsService.getPosts(filterDto, user);
   }
 
-  @Get('/:id')
+  @Query(() => Post)
   getPostById(
-    @Param('id', new ObjectIdValidationPipe()) id: Types.ObjectId,
-  ): Promise<PopulatedPostWithUser> {
+    @Args('id', { type: () => ID }) id: Types.ObjectId,
+  ): Promise<PostDocument> {
     return this.postsService.getPost(id);
   }
 
-  @Patch('/:id')
   @Roles(Role.User, Role.Admin)
   @UseGuards(RequiredUserAuthGuard, RolesGuard)
+  @Mutation(() => Post)
   updatePost(
-    @Param('id', new ObjectIdValidationPipe()) id: Types.ObjectId,
-    @Body() {
+    @Args('id', { type: () => ID }, new ObjectIdValidationPipe()) id: Types.ObjectId,
+    @Args('updatePostDto') {
       title,
       body,
       resources,
-    }: CreatePostDto,
+    }: UpdatePostDto,
     @GetUser() user: UserDocument,
   ): Promise<PostDocument> {
     return this.postsService.updatePost(
@@ -97,13 +85,13 @@ export class PostsController {
     );
   }
 
-  @Delete('/:id')
   @Roles(Role.User, Role.Admin)
   @UseGuards(RequiredUserAuthGuard, RolesGuard)
+  @Mutation(() => String)
   deletePost(
-    @Param('id', new ObjectIdValidationPipe()) id: Types.ObjectId,
+    @Args('id', { type: () => ID }, new ObjectIdValidationPipe()) id: Types.ObjectId,
     @GetUser() user: UserDocument,
-  ): Promise<void> {
+  ): Promise<string> {
     return this.postsService.deletePost(id, user);
   }
 }

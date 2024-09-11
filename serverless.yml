@@ -1,0 +1,28 @@
+service: nestjs-graphql-serverless
+
+provider:
+  name: aws
+  stage: api
+  runtime: nodejs18.x
+  region: eu-central-1
+
+plugins:
+  - serverless-offline
+
+package:
+  exclude:
+    - .git/**
+    - src/**
+    - test/**
+    - nodemon.json
+    - README.md
+  excludeDevDependencies: true
+
+functions:
+  index:
+    handler: dist/serverless.handler
+    timeout: 30
+    events:
+      - http:
+          path: /{any+}
+          method: any

@@ -9,16 +9,25 @@ Simple blog backend application created with usage of the NestJS and Mongoose.
 $ npm install
 ```
 
-## Running the app
+## Run locally
 
 ```bash
 $ npm run start
 ```
 
-## Support
+#### Open url http://localhost:3333/graphql
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Serverless offline
 
-## License
+```bash
+$ npm run start:sls
+```
 
-  Nest is [MIT licensed](LICENSE).
+#### Open url http://localhost:3000/api/graphql
+
+## Serverless deploy
+
+```bash
+$ npm run deploy
+```
+#### Open url https://sfc94hqmwe.execute-api.eu-central-1.amazonaws.com/api/graphql

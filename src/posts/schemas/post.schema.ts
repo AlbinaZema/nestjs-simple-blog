@@ -2,10 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { UserDocument } from '../../users/schemas/user.schema';
+import { Field, ObjectType } from '@nestjs/graphql';
 import PopulatedDocument from '../../types/PopulatedDocument';
 
 const logger = new Logger('PostSchema');
 
+@ObjectType()
 @Schema({
   toJSON: {
     virtuals: true,
@@ -13,16 +15,23 @@ const logger = new Logger('PostSchema');
   },
 })
 export class Post {
+  @Field(() => String)
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
+  @Field(() => String)
   title: string;
 
   @Prop({ required: true })
+  @Field(() => String)
   body: string;
 
   @Prop({ required: true, default: Date.now })
+  @Field()
   createdAt: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
+  @Field(() => String)
   user: Types.ObjectId;
 }
 

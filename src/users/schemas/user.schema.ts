@@ -1,31 +1,41 @@
 import * as bcrypt from 'bcryptjs';
 import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { Role } from '../../enums/role.enum';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { IsString } from 'class-validator';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 const logger = new Logger('UserSchema');
 
-@Schema({
-  toJSON: {
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
+@ObjectType()
 export class User {
+  @Field(() => String)
+  _id: Types.ObjectId;
+
+  @IsString()
   @Prop({ required: true, unique: true })
+  @Field({ nullable: false })
   username: string;
 
+  @IsString()
   @Prop({ required: true })
+  @Field({ nullable: false })
   password: string;
 
+  @IsString()
   @Prop({ required: true, hidden: true })
+  @Field()
   salt: string;
 
   @Prop({ required: true, default: Date.now })
+  @Field({ nullable: false })
   createdAt: Date;
 
   @Prop({ required: true, default: [Role.User] })
+  @Field(() => [Role], { nullable: false })
   roles: Role[];
 
   public async validatePassword(password: string): Promise<boolean> {

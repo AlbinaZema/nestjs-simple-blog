@@ -1,15 +1,15 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class CreatePostDto {
-  @IsNotEmpty()
-  @Field(() => String)
+export class UpdatePostDto {
+  @IsOptional()
+  @Field(() => String, { nullable: true })
   title: string;
 
-  @IsNotEmpty()
-  @Field(() => String)
+  @IsOptional()
+  @Field(() => String, { nullable: true })
   body: string;
 
   @Field(() => [String], { nullable: true })
