@@ -13,5 +13,8 @@ export class CreatePostDto {
   body: string;
 
   @Field(() => [String], { nullable: true })
-  resources?: Types.ObjectId[];
+  resources: Types.ObjectId[];
+
+  @Field(() => [String], { nullable: true })
+  categories: Types.ObjectId[];
 }

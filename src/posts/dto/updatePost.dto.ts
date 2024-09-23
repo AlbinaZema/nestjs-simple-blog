@@ -14,4 +14,7 @@ export class UpdatePostDto {
 
   @Field(() => [String], { nullable: true })
   resources?: Types.ObjectId[];
+
+  @Field(() => [String], { nullable: true })
+  categories?: Types.ObjectId[];
 }

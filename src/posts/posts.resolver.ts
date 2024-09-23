@@ -31,6 +31,7 @@ export class PostsResolver {
       title,
       body,
       resources,
+      categories,
     }: CreatePostDto,
     @GetUser() user: UserDocument,
   ): Promise<PostDocument> {
@@ -39,9 +40,13 @@ export class PostsResolver {
     );
 
     return this.postsService.createPost(
-      { title, body: sanitizeHtml(body, sanitizeHtmlConfig) },
+      {
+        title,
+        resources,
+        categories,
+        body: sanitizeHtml(body, sanitizeHtmlConfig),
+      },
       user,
-      resources,
     );
   }
 
@@ -55,14 +60,7 @@ export class PostsResolver {
       `Retrieving the posts. Filters: ${JSON.stringify(filterDto)}`,
     );
 
-    return this.postsService.getPosts(filterDto, user);
-  }
-
-  @Query(() => Post)
-  getPostById(
-    @Args('id', { type: () => ID }) id: Types.ObjectId,
-  ): Promise<PostDocument> {
-    return this.postsService.getPost(id);
+    return this.postsService.getPostsWithAggregations(filterDto, user);
   }
 
   @Roles(Role.User, Role.Admin)
@@ -74,14 +72,19 @@ export class PostsResolver {
       title,
       body,
       resources,
+      categories,
     }: UpdatePostDto,
     @GetUser() user: UserDocument,
   ): Promise<PostDocument> {
     return this.postsService.updatePost(
       id,
-      { title, body: sanitizeHtml(body, sanitizeHtmlConfig) },
+      {
+        title,
+        resources,
+        categories,
+        body: sanitizeHtml(body, sanitizeHtmlConfig),
+      },
       user,
-      resources,
     );
   }
 

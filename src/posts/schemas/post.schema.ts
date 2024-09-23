@@ -1,19 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { UserDocument } from '../../users/schemas/user.schema';
 import { Field, ObjectType } from '@nestjs/graphql';
-import PopulatedDocument from '../../types/PopulatedDocument';
 
 const logger = new Logger('PostSchema');
 
-@ObjectType()
 @Schema({
-  toJSON: {
-    virtuals: true,
-    versionKey: false,
-  },
+  toJSON: { virtuals: true, versionKey: false },
 })
+@ObjectType()
 export class Post {
   @Field(() => String)
   _id: Types.ObjectId;
@@ -26,35 +21,30 @@ export class Post {
   @Field(() => String)
   body: string;
 
-  @Prop({ required: true, default: Date.now })
-  @Field()
-  createdAt: Date;
-
   @Prop({ type: Types.ObjectId, ref: 'User' })
   @Field(() => String)
   user: Types.ObjectId;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Resource' }] })
+  @Field(() => [String])
+  resources: Types.ObjectId[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Category' }] })
+  @Field(() => [String])
+  categories: Types.ObjectId[];
+
+  @Prop({ default: Date.now })
+  @Field(() => Date)
+  createdAt: Date;
 }
 
 export type PostDocument = Post & Document;
+export const PostSchema = SchemaFactory.createForClass(Post);
 
-export type PopulatedPostWithUser = PopulatedDocument<
-  PostDocument,
-  UserDocument,
-  'user'
->;
-
-const PostSchema = SchemaFactory.createForClass(Post);
-
-PostSchema.virtual('resources', {
-  ref: 'Resource',
-  localField: '_id',
-  foreignField: 'post',
-  justOne: false,
-});
-
+PostSchema.index({ user: 1, createdAt: -1 });
+PostSchema.index({ categories: 1 });
 PostSchema.index({ title: 'text', body: 'text' });
 
-// Removing related resources on post delete
 ['findOneAndDelete', 'deleteMany'].forEach(
   (queryName: string) => PostSchema.pre(queryName, async function(next) {
     const posts: PostDocument[] = await this.find(this);
@@ -75,5 +65,3 @@ PostSchema.index({ title: 'text', body: 'text' });
     }
   }),
 );
-
-export default PostSchema;

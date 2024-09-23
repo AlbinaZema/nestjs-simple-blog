@@ -57,6 +57,7 @@ UserSchema.virtual('posts', {
 });
 
 UserSchema.index({ username: 'text' });
+UserSchema.index({ email: 1 }, { unique: true });
 
 // Removing user's posts on user delete
 UserSchema.pre('findOneAndDelete', async function(next) {
